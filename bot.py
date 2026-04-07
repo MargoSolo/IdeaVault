@@ -37,36 +37,36 @@ async def _handle_and_upload(message: Message, data: dict) -> None:
         
         response = (
             f"✨ **{data['title']}**\n\n"
-            f"📁 **Рубрика:** `{data['folder']}`\n"
-            f"🏷 **Теги:** {tags_str}\n\n"
+            f"📁 **Folder:** `{data['folder']}`\n"
+            f"🏷 **Tags:** {tags_str}\n\n"
             f"--- 💠 ---\n\n"
-            f"🔗 [Посмотреть в GitHub]({url})"
+            f"🔗 [View on GitHub]({url})"
         )
         await message.answer(response, parse_mode="Markdown")
     except Exception as e:
         logger.error("Failed to upload note: %s", e)
-        await message.answer(f"❌ **Ошибка сохранения:** {e}")
+        await message.answer(f"❌ **Save error:** {e}")
 
 
-@dp.message(F.text.in_({"/start", "/help", "помощь"}))
+@dp.message(F.text.in_({"/start", "/help", "help"}))
 async def cmd_help(message: Message) -> None:
     if not _is_allowed(message):
         return
         
     welcome_text = (
-        "💎 **Личный Ассистент Заметок**\n\n"
-        "Я помогу тебе мгновенно захватывать идеи и раскладывать их по полочкам в Obsidian.\n\n"
-        "📌 **Доступные рубрики:**\n"
-        "📥 `00_Inbox` — Мысли и идеи «на бегу»\n"
-        "🏗 `10_Projects` — Задачи, фичи и планы\n"
-        "🎓 `20_Education` — Учёба, книги и лекции\n"
-        "✍️ `30_Articles` — Идеи для постов и блогов\n"
-        "✈️ `40_Travel` — Билеты, отели и планы поездок\n\n"
-        "🚀 **Как пользоваться:**\n"
-        "1. Просто отправь **текст** или **голос**.\n"
-        "2. Я сам выберу рубрику и подберу теги.\n"
-        "3. Заметка сразу улетит на GitHub.\n\n"
-        "🎨 *Всё будет оформлено чисто и профессионально!*"
+        "💎 **Personal Notes Assistant**\n\n"
+        "I'll help you instantly capture ideas and organize them neatly in Obsidian.\n\n"
+        "📌 **Available folders:**\n"
+        "📥 `00_Inbox` — Thoughts and ideas on the go\n"
+        "🏗 `10_Projects` — Tasks, features and plans\n"
+        "🎓 `20_Education` — Study, books and lectures\n"
+        "✍️ `30_Articles` — Ideas for posts and blogs\n"
+        "✈️ `40_Travel` — Tickets, hotels and trip plans\n\n"
+        "🚀 **How to use:**\n"
+        "1. Just send a **text** or **voice** message.\n"
+        "2. I'll pick the right folder and add tags automatically.\n"
+        "3. Your note will be saved to GitHub right away.\n\n"
+        "🎨 *Everything will be formatted cleanly and professionally!*"
     )
     await message.answer(welcome_text, parse_mode="Markdown")
 
@@ -78,7 +78,7 @@ async def handle_text(message: Message) -> None:
         return
 
     # Acknowledge immediately so Telegram doesn't retry and Vercel doesn't timeout
-    ack = await message.answer("⏳ Обрабатываю...")
+    ack = await message.answer("⏳ Processing...")
 
     try:
         data = await process_text(message.text)
@@ -87,7 +87,7 @@ async def handle_text(message: Message) -> None:
     except Exception as e:
         logger.error("Text processing error: %s", e)
         await ack.delete()
-        await message.answer(f"❌ Ошибка обработки: {e}")
+        await message.answer(f"❌ Processing error: {e}")
 
 
 @dp.message(F.voice)
@@ -96,7 +96,7 @@ async def handle_voice(message: Message) -> None:
         return
 
     # Acknowledge immediately
-    ack = await message.answer("🎙 Слушаю и расшифровываю...")
+    ack = await message.answer("🎙 Listening and transcribing...")
 
     try:
         # Download the voice file as bytes
@@ -110,7 +110,7 @@ async def handle_voice(message: Message) -> None:
     except Exception as e:
         logger.error("Voice processing error: %s", e)
         await ack.delete()
-        await message.answer(f"❌ Ошибка обработки голоса: {e}")
+        await message.answer(f"❌ Voice processing error: {e}")
 
 
 @dp.message(F.document)
@@ -121,10 +121,10 @@ async def handle_document(message: Message) -> None:
 
     doc = message.document
     if not doc.file_name.endswith(".md"):
-        await message.answer("⚠️ Поддерживаются только .md файлы.")
+        await message.answer("⚠️ Only .md files are supported.")
         return
 
-    ack = await message.answer("📄 Читаю файл...")
+    ack = await message.answer("📄 Reading file...")
     try:
         file_info = await bot.get_file(doc.file_id)
         downloaded = await bot.download_file(file_info.file_path)
@@ -136,4 +136,4 @@ async def handle_document(message: Message) -> None:
     except Exception as e:
         logger.error("Document processing error: %s", e)
         await ack.delete()
-        await message.answer(f"❌ Ошибка обработки файла: {e}")
+        await message.answer(f"❌ File processing error: {e}")

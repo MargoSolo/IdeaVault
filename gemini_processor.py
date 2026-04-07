@@ -15,30 +15,30 @@ load_dotenv()
 _client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
 MODEL = "gemini-2.5-flash"
 
-SYSTEM_PROMPT = """Ты — интеллектуальный помощник для организации заметок в Obsidian.
-Проанализируй текст и верни ТОЛЬКО валидный JSON (без markdown-блоков, только сырой JSON) в следующем формате:
+SYSTEM_PROMPT = """You are an intelligent assistant for organising notes in Obsidian.
+Analyse the text and return ONLY valid JSON (no markdown fences, raw JSON only) in the following format:
 
 {
-  "folder": "<одно из: 00_Inbox | 10_Projects | 20_Education | 30_Articles | 40_Travel>",
-  "title": "<короткое название заметки на русском, 5-7 слов>",
-  "tags": ["<тег1>", "<тег2>"],
-  "body": "<полное тело заметки в формате Markdown>"
+  "folder": "<one of: 00_Inbox | 10_Projects | 20_Education | 30_Articles | 40_Travel>",
+  "title": "<short note title in English, 5-7 words>",
+  "tags": ["<tag1>", "<tag2>"],
+  "body": "<full note body in Markdown format>"
 }
 
-Правила выбора папки:
-- 00_Inbox: мысли, идеи, заметки «на бегу».
-- 10_Projects: задачи, описание фич, планы, проекты.
-- 20_Education: учёба, курсы, книги, ИТМО, Vigo, лекции, университет.
-- 30_Articles: идеи для постов, статьи, блога, заметки для публикации.
-- 40_Travel: 여행, билеты, рестораны, отели, визы, страны, планы поездок.
+Folder selection rules:
+- 00_Inbox: random thoughts, ideas, quick notes on the go.
+- 10_Projects: tasks, feature descriptions, plans, projects.
+- 20_Education: studying, courses, books, ITMO, Vigo, lectures, university.
+- 30_Articles: ideas for posts, articles, blogs, notes for publication.
+- 40_Travel: travel, tickets, restaurants, hotels, visas, countries, trip plans.
 
-Правила для тегов:
-- Максимум 3-5 тегов. Только строчные буквы, без #.
+Tag rules:
+- Maximum 3-5 tags. Lowercase only, no #.
 
-Правила для body:
-- Сделай текст ЧИСТЫМ и КРАСИВЫМ. Используй заголовки (#, ##), списки и жирный шрифт где уместно.
-- Убери все «э», «ну», «вот» и повторы из голосовых. Сделай текст связным, как будто ты профессиональный редактор.
-- Не добавляй приветствий, вступлений или заключений от себя. Только структурированная мысль.
+Body rules:
+- Make the text CLEAN and WELL-STRUCTURED. Use headings (#, ##), lists, and bold where appropriate.
+- Remove filler words and repetitions from voice messages. Make the text coherent, as if written by a professional editor.
+- Do not add greetings, intros, or closing remarks. Only the structured idea.
 """
 
 
@@ -52,7 +52,7 @@ def _clean_json(raw: str) -> dict:
 
 async def process_text(text: str) -> dict:
     """Classify a plain text message and return structured note data."""
-    prompt = f"{SYSTEM_PROMPT}\n\nТекст пользователя:\n{text}"
+    prompt = f"{SYSTEM_PROMPT}\n\nUser text:\n{text}"
     response = _client.models.generate_content(
         model=MODEL,
         contents=prompt,
@@ -63,9 +63,9 @@ async def process_text(text: str) -> dict:
 async def process_voice(ogg_bytes: bytes) -> dict:
     """Transcribe a voice OGG file and classify it."""
     transcribe_prompt = (
-        "Сначала ТОЧНО расшифруй голосовое сообщение — "
-        "убери слова-паразиты, но сохрани смысл. "
-        "Затем классифицируй по инструкции ниже.\n\n"
+        "First, transcribe the voice message ACCURATELY — "
+        "remove filler words but preserve the meaning. "
+        "Then classify according to the instructions below.\n\n"
         + SYSTEM_PROMPT
     )
 

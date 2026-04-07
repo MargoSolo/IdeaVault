@@ -51,7 +51,7 @@ cd obs/bot
 vercel --prod \
   -e TG_TOKEN="your_telegram_bot_token_here" \
   -e GOOGLE_API_KEY="your_google_ai_studio_api_key_here" \
-  -e GITHUB_TOKEN="our_github_personal_access_token_here" \
+  -e GITHUB_TOKEN="your_github_personal_access_token_here" \
   -e GITHUB_REPO="YourUsername/your-obsidian-repo" \
   -e ALLOWED_USER_ID="your_telegram_user_id_here"
 ```
